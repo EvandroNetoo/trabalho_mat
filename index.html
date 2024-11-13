@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="min-h-screen">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabalho matemática</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-slate-50">
+
+    <div class="min-h-screen flex flex-col items-center justify-center px-8">
+        <div class="flex flex-col gap-4 w-full max-w-4xl bg-red-200 rounded-lg p-4 drop-shadow-2xl">
+            <h1>Calculadora de gr</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
+                <label class="input input-bordered flex items-center gap-2">
+                    <span>S<sub>0</sub></span>
+                    <input type="number" id="s0" class="grow" placeholder="Espaço inicial" value="-5" />
+                </label>
+                <label class="input input-bordered flex items-center gap-2">
+                    <span>V<sub>0</sub></span>
+                    <input type="number" id="v0" class="grow" placeholder="Velocidade inicial" value="0" />
+                </label>
+                <label class="input input-bordered flex items-center gap-2">
+                    <span>a</span>
+                    <input type="number" id="a" class="grow" placeholder="Aceleração" value="2" />
+                </label>
+                <label class="input input-bordered flex items-center gap-2">
+                    <span>t<sub>0</sub></span>
+                    <input type="number" id="t0" class="grow" placeholder="Tempo inicial" value="-5" />
+                </label>
+                <label class="input input-bordered flex items-center gap-2">
+                    <span>t</span>
+                    <input type="number" id="t" class="grow" placeholder="Tempo final" value="20" />
+                </label>
+            </div>
+
+            <button class="btn bg-red-400 border-red-500 hover:bg-red-500 hover:border-red-600 w-full text-lg font-bold"
+                onclick="plotCharts()">Calcular</button>
+
+            <div class="grid gap-2">
+                <canvas id="velocityChart"></canvas>
+                <canvas id="spaceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <script>
+        const velocityChartElement = document.getElementById('velocityChart');
+        const spaceChartElement = document.getElementById('spaceChart');
+
+        
+        const plotCharts = () => {
+            if (Chart.getChart("velocityChart")) {
+                Chart.getChart("velocityChart")?.destroy()
+            }
+            if (Chart.getChart("spaceChart")) {
+                Chart.getChart("spaceChart")?.destroy()
+            }
+            const s0Element = document.getElementById('s0');
+            const v0Element = document.getElementById('v0');
+            const aElement = document.getElementById('a');
+            const t0Element = document.getElementById('t0');
+            const tElement = document.getElementById('t');
+            
+            const s0 = parseFloat(s0Element.value);
+            const v0 = parseFloat(v0Element.value);
+            const a = parseFloat(aElement.value);
+            const t0 = parseFloat(t0Element.value);
+            const t = parseFloat(tElement.value);
+
+            const delta = (t - t0) / 10000;
+
+            const time_points = [];
+            for (let i = t0; i <= t; i += delta) {
+                time_points.push(i);
+            }
+
+            const velocity_points = [];
+            time_points.forEach((time) => {
+                velocity_points.push(v0 + a * time);
+            })
+
+            const space_points = [];
+            time_points.forEach((time) => {
+                space_points.push(s0 + v0 * time + (a / 2) * time ** 2);
+            });
+
+            new Chart(velocityChartElement, {
+                type: 'line',
+                data: {
+                    labels: time_points, // eixo X: tempo
+                    datasets: [{
+                        label: 'Velocidade',
+                        data: velocity_points,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Tempo (s)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Velocidade (m/s)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+
+            new Chart(spaceChartElement, {
+                type: 'line',
+                data: {
+                    labels: time_points,
+                    datasets: [{
+                        label: 'Espaço',
+                        data: space_points,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Tempo (s)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Espaço (m/s)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            plotCharts();
+        })
+
+    </script>
+
+</body>
+
+</html>
